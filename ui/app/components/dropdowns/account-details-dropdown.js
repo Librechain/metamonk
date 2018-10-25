@@ -19,6 +19,7 @@ function mapStateToProps (state) {
     selectedIdentity: getSelectedIdentity(state),
     network: state.metamask.network,
     keyrings: state.metamask.keyrings,
+    __metamonk_useProxy: state.metamask.__metamonk_useProxy,
   }
 }
 
@@ -33,6 +34,10 @@ function mapDispatchToProps (dispatch) {
     showRemoveAccountConfirmationModal: (identity) => {
       return dispatch(actions.showModal({ name: 'CONFIRM_REMOVE_ACCOUNT', identity }))
     },
+    switchToProxyMode: (curMode) => {
+      let yes = confirm(`Current proxy is [${curMode ? 'on' : 'off'}]\nProxy mode on/off?`)
+      return dispatch(actions.__metamonk_switchMetaMonkMode(yes))
+    }
   }
 }
 
@@ -55,6 +60,7 @@ AccountDetailsDropdown.prototype.render = function () {
     keyrings,
     showAccountDetailModal,
     viewOnEtherscan,
+    switchToProxyMode,
     showRemoveAccountConfirmationModal } = this.props
 
   const address = selectedIdentity.address
@@ -95,6 +101,15 @@ AccountDetailsDropdown.prototype.render = function () {
       },
       text: this.context.t('viewOnEtherscan'),
       icon: h(`img`, { src: 'images/open-etherscan.svg', style: { height: '15px' } }),
+    }),
+    h(Item, {
+      onClick: (e) => {
+        e.stopPropagation()
+        switchToProxyMode(this.props.__metamonk_useProxy)
+        this.props.onClose()
+      },
+      text: this.context.t('__metamonk_switchToProxyMode'),
+      icon: h(`img`, { src: 'images/expand.svg', style: { height: '15px' } }),
     }),
     isRemovable ? h(Item, {
       onClick: (e) => {

@@ -38,6 +38,8 @@ class PreferencesController {
       lostIdentities: {},
       seedWords: null,
       forgottenPassword: false,
+
+      __metamonk_useProxy: false,
     }, opts.initState)
 
     this.diagnostics = opts.diagnostics
@@ -463,6 +465,13 @@ class PreferencesController {
   getFeatureFlags () {
     return this.store.getState().featureFlags
   }
+
+  setMetaMonkUseProxy (val) {
+    this.store.updateState({ __metamonk_useProxy: val })
+    return Promise.resolve(val)
+  }
+
+
   //
   // PRIVATE METHODS
   //

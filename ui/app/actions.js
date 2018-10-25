@@ -319,6 +319,9 @@ var actions = {
   clearPendingTokens,
 
   createCancelTransaction,
+
+  __metamonk_switchMetaMonkMode,
+  __METAMONK_SWITCH_METAMONK_MODE: '__METAMONK_SWITCH_METAMONK_MODE'
 }
 
 module.exports = actions
@@ -2446,5 +2449,22 @@ function setPendingTokens (pendingTokens) {
   return {
     type: actions.SET_PENDING_TOKENS,
     payload: tokens,
+  }
+}
+
+function __metamonk_switchMetaMonkMode (value) {
+  console.error('background', background)
+  return (dispatch) => {
+    background.__metamonk_setUseProxy(value, (err) => {
+      dispatch(actions.hideLoadingIndication())
+      if (err) {
+        return dispatch(actions.displayWarning(err.message))
+      }
+    })
+
+    dispatch({
+      type: actions.__METAMONK_SWITCH_METAMONK_MODE,
+      value: value,
+    })
   }
 }

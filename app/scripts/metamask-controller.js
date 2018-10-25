@@ -258,8 +258,14 @@ module.exports = class MetamaskController extends EventEmitter {
       getAccounts: async () => {
         const isUnlocked = this.keyringController.memStore.getState().isUnlocked
         const selectedAddress = this.preferencesController.getSelectedAddress()
+        const prefUseProxy = this.preferencesController.store.getState().__metamonk_useProxy
+
         // only show address if account is unlocked
         if (isUnlocked && selectedAddress) {
+          if (prefUseProxy) {
+            // TODO: show proxy address only in proxy mode
+            return ['0x1234567890123456789012345678901234567890']
+          }
           return [selectedAddress]
         } else {
           return []
@@ -387,6 +393,7 @@ module.exports = class MetamaskController extends EventEmitter {
       setCurrentAccountTab: nodeify(preferencesController.setCurrentAccountTab, preferencesController),
       setAccountLabel: nodeify(preferencesController.setAccountLabel, preferencesController),
       setFeatureFlag: nodeify(preferencesController.setFeatureFlag, preferencesController),
+      __metamonk_setUseProxy: nodeify(preferencesController.setMetaMonkUseProxy, preferencesController),
 
       // BlacklistController
       whitelistPhishingDomain: this.whitelistPhishingDomain.bind(this),

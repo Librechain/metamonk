@@ -365,6 +365,13 @@ function reduceMetamask (state, action) {
       })
     }
 
+    case actions.__METAMONK_SWITCH_METAMONK_MODE:
+      console.error('actions', action)
+
+      return extend(metamaskState, {
+        __metamonk_useProxy: action.payload
+      })
+
     default:
       return metamaskState
 

@@ -1291,4 +1291,9 @@
   "yourPrivateSeedPhrase": {
     "message": "Your private seed phrase"
   }
+
+  ,
+  "__metamonk_switchToProxyMode": {
+    "message": "Switch to proxy mode"
+  }
 }
