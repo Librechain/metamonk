@@ -40,6 +40,8 @@ class PreferencesController {
       forgottenPassword: false,
 
       __metamonk_useProxy: false,
+      __metamonk_proxyContracts: [],
+      __metamonk_accountIdentities: {},
     }, opts.initState)
 
     this.diagnostics = opts.diagnostics
@@ -471,6 +473,44 @@ class PreferencesController {
     return Promise.resolve(val)
   }
 
+  addMetaMonkProxyContract (rawAddress, nickname, functionHash) {
+    const address = normalizeAddress(rawAddress)
+    const newEntry = { address, nickname, functionHash }
+    const {
+      __metamonk_proxyContracts: proxyContracts
+    } = this.store.getState()
+    const assetImages = this.getAssetImages()
+    const previousEntry = proxyContracts.find((pc, index) => {
+      return pc.address === address
+    })
+    const previousIndex = proxyContracts.indexOf(previousEntry)
+
+    if (previousEntry) {
+      proxyContracts[previousIndex] = newEntry
+    } else {
+      proxyContracts.push(newEntry)
+    }
+    // assetImages[address] = image
+
+
+    this._updateMetaMonkAccountIdentities(proxyContracts)
+    return Promise.resolve(proxyContracts)
+  }
+
+  setMetaMonkIdentityLabel (address, nickname) {
+    const { identities } = this.store.getState()
+
+    // XXX: set account label
+    identities[address] = {
+      ...identities[address],
+      address,
+      nickname,
+      isProxy: true
+    }
+
+    this.store.updateState({ identities })
+    return Promise.resolve(identities)
+  }
 
   //
   // PRIVATE METHODS
@@ -567,6 +607,29 @@ class PreferencesController {
       throw new Error(`Invalid decimals ${decimals} must be at least 0, and not over 36`)
     }
     if (!isValidAddress(rawAddress)) throw new Error(`Invalid address ${rawAddress}`)
+  }
+
+  /**
+   * Metamonk-specific private functions
+   */
+
+  _getMetaMonkIdentityRelatedStates (selectedAddress) {
+    const accountIdentities = this.store.getState().__metamonk_accountIdentities
+    if (!selectedAddress) selectedAddress = this.store.getState().selectedAddress
+    const providerType = this.network.providerStore.getState().type
+    if (!(selectedAddress in accountIdentities)) accountIdentities[selectedAddress] = {}
+    if (!(providerType in accountIdentities[selectedAddress])) accountIdentities[selectedAddress][providerType] = []
+    const identities = accountIdentities[selectedAddress][providerType]
+    return { identities, accountIdentities, providerType, selectedAddress }
+  }
+
+  _updateMetaMonkAccountIdentities (identities) {
+    const { accountIdentities, providerType, selectedAddress } = this._getMetaMonkIdentityRelatedStates()
+    accountIdentities[selectedAddress][providerType] = identities
+    this.store.updateState({
+      __metamonk_accountIdentities: accountIdentities,
+      __metamonk_proxyContracts: identities,
+    })
   }
 }
 

@@ -394,6 +394,8 @@ module.exports = class MetamaskController extends EventEmitter {
       setAccountLabel: nodeify(preferencesController.setAccountLabel, preferencesController),
       setFeatureFlag: nodeify(preferencesController.setFeatureFlag, preferencesController),
       __metamonk_setUseProxy: nodeify(preferencesController.setMetaMonkUseProxy, preferencesController),
+      __metamonk_addProxyContract: nodeify(preferencesController.addMetaMonkProxyContract, preferencesController),
+      __metamonk_setIdentityLabel: nodeify(preferencesController.setMetaMonkIdentityLabel, preferencesController),
 
       // BlacklistController
       whitelistPhishingDomain: this.whitelistPhishingDomain.bind(this),

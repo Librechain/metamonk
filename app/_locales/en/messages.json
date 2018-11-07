@@ -1295,5 +1295,47 @@
   ,
   "__metamonk_switchToProxyMode": {
     "message": "Switch to proxy mode"
+  },
+  "__metamonk_searchIdentity": {
+    "message": "Search Identities"
+  },
+  "__metamonk_addProxyContract": {
+    "message": "Choose identity"
+  },
+  "__metamonk_addProxyContracts": {
+    "message": "Choose identity"
+  },
+  "__metamonk_likeToAddProxyContract": {
+    "message": "Would you like to add/switch to this identity?"
+  },
+  "__metamonk_likeToAddProxyContract": {
+    "message": "Would you like to add/switch to this identity?"
+  },
+  "__metamonk_switchToProxy": {
+    "message": "Switch to"
+  },
+  "__metamonk_importProxy": {
+    "message": "Import"
+  },
+  "__metamonk_proxyContractAddress": {
+    "message": "Proxy contract address"
+  },
+  "__metamonk_proxyContractNickname": {
+    "message": "Identity nickname"
+  },
+  "__metamonk_etherBalance": {
+    "message": "Ether balance"
+  },
+  "__metamonk_proxyContractFunctionHash": {
+    "message": "Function hash"
+  },
+
+  "__metamonk_invalidFunctionHash": {
+    "message": "Invalid function hash. Should be of the form 0xdeadbeef."
+  },
+
+  "__metamonk_emptyProxyNickname": {
+    "message": "Empty nickname for proxy contract"
   }
+
 }

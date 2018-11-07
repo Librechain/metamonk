@@ -51,6 +51,8 @@ function reduceMetamask (state, action) {
     isRevealingSeedWords: false,
     welcomeScreenSeen: false,
     currentLocale: '',
+
+    __metamonk_pendingIdentities: {},
   }, state.metamask)
 
   switch (action.type) {
@@ -366,10 +368,19 @@ function reduceMetamask (state, action) {
     }
 
     case actions.__METAMONK_SWITCH_METAMONK_MODE:
-      console.error('actions', action)
-
       return extend(metamaskState, {
         __metamonk_useProxy: action.payload
+      })
+
+    case actions.__METAMONK_SET_PENDING_IDENTITIES:
+      console.warn('__METAMONK_SET_PENDING_IDENTITIES', action)
+      return extend(metamaskState, {
+        __metamonk_pendingIdentities: { ...action.payload },
+      })
+
+    case actions.__METAMONK_CLEAR_PENDING_IDENTITIES:
+      return extend(metamaskState, {
+        __metamonk_pendingIdentities: {},
       })
 
     default:

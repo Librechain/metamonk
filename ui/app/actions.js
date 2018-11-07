@@ -320,8 +320,23 @@ var actions = {
 
   createCancelTransaction,
 
+  __METAMONK_SWITCH_METAMONK_MODE: '__METAMONK_SWITCH_METAMONK_MODE',
   __metamonk_switchMetaMonkMode,
-  __METAMONK_SWITCH_METAMONK_MODE: '__METAMONK_SWITCH_METAMONK_MODE'
+
+  __METAMONK_ADD_IDENTITY: '__METAMONK_ADD_IDENTITY',
+  __metamonk_addIdentity,
+
+  __METAMONK_SET_SELECTED_IDENTITY: '__METAMONK_SET_SELECTED_IDENTITY',
+  __metamonk_setSelectedIdentity,
+
+  __METAMONK_SET_PENDING_IDENTITIES: '__METAMONK_SET_PENDING_IDENTITIES',
+  __METAMONK_CLEAR_PENDING_IDENTITIES: 'CLEAR_PENDING_IDENTITIES',
+  __metamonk_setPendingIdentities,
+  __metamonk_clearPendingIdentities,
+
+  __METAMONK_UPDATE_PROXY_CONTRACTS: '__METAMONK_UPDATE_PROXY_CONTRACTS',
+  __metamonk_updateProxyContracts,
+
 }
 
 module.exports = actions
@@ -1753,6 +1768,14 @@ function goBackToInitView () {
   }
 }
 
+
+function __metamonk_updateProxyContracts (newProxyContracts) {
+  return {
+    type: actions.__METAMONK_UPDATE_PROXY_CONTRACTS,
+    newProxyContracts,
+  }
+}
+
 //
 // notice
 //
@@ -2467,4 +2490,61 @@ function __metamonk_switchMetaMonkMode (value) {
       value: value,
     })
   }
+}
+
+function __metamonk_clearPendingIdentities () {
+  return {
+    type: actions.__METAMONK_CLEAR_PENDING_IDENTITIES,
+  }
+}
+
+function __metamonk_setPendingIdentities (pendingIdentities) {
+  const { importingIdentity = {}, selectedIdentity = {} } = pendingIdentities
+  const { address, functionHash, nickname } = importingIdentity
+  const identities = address && nickname
+    ? { ...selectedIdentity, [address]: { ...importingIdentity, importing: true } }
+    : selectedIdentity
+
+  return {
+    type: actions.__METAMONK_SET_PENDING_IDENTITIES,
+    payload: identities,
+  }
+}
+
+function __metamonk_addIdentity (proxyContract) {
+  return (dispatch) => {
+    dispatch(actions.showLoadingIndication())
+
+    const { address, nickname, functionHash } = proxyContract
+
+    let _1 = new Promise((resolve, reject) => {
+      background.__metamonk_addProxyContract(address, nickname, functionHash, (err, proxyContracts) => {
+        if (err) {
+          dispatch(actions.displayWarning(err.message))
+          reject(err)
+        }
+        dispatch(actions.__metamonk_updateProxyContracts(proxyContracts))
+        resolve(proxyContracts)
+      })
+    })
+
+    let _2 = new Promise((resolve, reject) => {
+      background.__metamonk_setIdentityLabel(address, nickname, (err, identities) => {
+        if (err) {
+          dispatch(actions.displayWarning(err.message))
+          reject(err)
+        }
+        resolve(identities)
+      })
+    })
+
+    return Promise.all([_1, _2])
+      .then(() => {
+        dispatch(actions.hideLoadingIndication())
+      })
+  }
+}
+
+function __metamonk_setSelectedIdentity (identity) {
+  // TODO: %%%%%
 }

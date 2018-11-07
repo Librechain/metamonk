@@ -15,7 +15,10 @@ const actions = require('../actions')
 const BalanceComponent = require('./balance-component')
 const TokenList = require('./token-list')
 const selectors = require('../selectors')
-const { ADD_TOKEN_ROUTE } = require('../routes')
+const {
+  ADD_TOKEN_ROUTE,
+  __METAMONK_ADD_PROXY_CONTRACT_ROUTE
+} = require('../routes')
 
 import Button from './button'
 
@@ -196,6 +199,15 @@ WalletView.prototype.render = function () {
         h('i.fa.fa-clipboard', { style: { marginLeft: '8px' } }),
       ]),
     ]),
+
+    h(Button, {
+      type: 'primary',
+      className: 'wallet-view__add-token-button',
+      onClick: () => {
+        history.push(__METAMONK_ADD_PROXY_CONTRACT_ROUTE)
+        sidebarOpen && hideSidebar()
+      },
+    }, this.context.t('__metamonk_addProxyContract')),
 
     this.renderWalletBalance(),
 

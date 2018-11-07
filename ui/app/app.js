@@ -25,7 +25,9 @@ const Initialized = require('./components/pages/initialized')
 const RestoreVaultPage = require('./components/pages/keychains/restore-vault').default
 const RevealSeedConfirmation = require('./components/pages/keychains/reveal-seed')
 const AddTokenPage = require('./components/pages/add-token')
+const __metamonk_AddProxyContractPage = require('./components/pages/add-proxy-contract')
 const ConfirmAddTokenPage = require('./components/pages/confirm-add-token')
+const __metamonk_ConfirmAddProxyContractPage = require('./components/pages/confirm-add-proxy-contract')
 const ConfirmAddSuggestedTokenPage = require('./components/pages/confirm-add-suggested-token')
 const CreateAccountPage = require('./components/pages/create-account')
 const NoticeScreen = require('./components/pages/notice')
@@ -56,6 +58,9 @@ const {
   SEND_ROUTE,
   CONFIRM_TRANSACTION_ROUTE,
   INITIALIZE_ROUTE,
+
+  __METAMONK_ADD_PROXY_CONTRACT_ROUTE,
+  __METAMONK_CONFIRM_ADD_PROXY_CONTRACT_ROUTE,
   NOTICE_ROUTE,
 } = require('./routes')
 
@@ -85,6 +90,8 @@ class App extends Component {
         }),
         h(Authenticated, { path: SEND_ROUTE, exact, component: SendTransactionScreen }),
         h(Authenticated, { path: ADD_TOKEN_ROUTE, exact, component: AddTokenPage }),
+        h(Authenticated, { path: __METAMONK_ADD_PROXY_CONTRACT_ROUTE, exact, component: __metamonk_AddProxyContractPage }),
+        h(Authenticated, { path: __METAMONK_CONFIRM_ADD_PROXY_CONTRACT_ROUTE, exact, component: __metamonk_ConfirmAddProxyContractPage }),
         h(Authenticated, { path: CONFIRM_ADD_TOKEN_ROUTE, exact, component: ConfirmAddTokenPage }),
         h(Authenticated, { path: CONFIRM_ADD_SUGGESTED_TOKEN_ROUTE, exact, component: ConfirmAddSuggestedTokenPage }),
         h(Authenticated, { path: NEW_ACCOUNT_ROUTE, component: CreateAccountPage }),
