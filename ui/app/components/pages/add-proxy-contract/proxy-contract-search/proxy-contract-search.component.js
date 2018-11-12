@@ -39,7 +39,6 @@ export default class ProxyContractSearch extends Component {
       ...identResults
     ].concat(identResults.length ? ({ nickname: '(main)', address: this.props.selectedAddress }) : [])
 
-    console.warn('search result', results)
     this.props.onSearch({ searchQuery, results })
   }
 

@@ -373,7 +373,6 @@ function reduceMetamask (state, action) {
       })
 
     case actions.__METAMONK_SET_PENDING_IDENTITIES:
-      console.warn('__METAMONK_SET_PENDING_IDENTITIES', action)
       return extend(metamaskState, {
         __metamonk_pendingIdentities: { ...action.payload },
       })

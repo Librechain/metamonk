@@ -86,8 +86,6 @@ class AddProxyContract extends Component {
       selectedIdentityCopy[address] = token
     }
 
-    console.warn('new state', selectedIdentityCopy)
-
     this.setState({
       selectedIdentity: selectedIdentityCopy,
       identitySelectorError: null,
