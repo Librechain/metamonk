@@ -227,8 +227,8 @@ class PreferencesController {
     const { identities, lostIdentities } = this.store.getState()
 
     const newlyLost = {}
-    Object.keys(identities).forEach((identity) => {
-      if (!addresses.includes(identity)) {
+    Object.entries(identities).forEach(([identity, idObject]) => {
+      if (!addresses.includes(identity) && !idObject.isProxy) {
         newlyLost[identity] = identities[identity]
         delete identities[identity]
       }

@@ -32,21 +32,8 @@ export default class ProxyContractSearch extends Component {
   }
 
   handleSearch (searchQuery) {
-    console.warn('search query', searchQuery)
-    console.warn('search ident', this.props.identities)
     this.setState({ searchQuery })
-    // const results = [{
-    //   address: '0x1111', nickname: 'ddd', symbol: 'XXX'
-    // }, {
-    //   address: '0x2222', nickname: 'ddd', symbol: 'YYY'
-    // }, {
-    //   address: '0x3333', nickname: 'ddd', symbol: 'ZZZ'
-    // }]
-    //
     const identResults = Object.values(this.props.identities)
-    .filter(identity => {
-      return identity.isProxy == true
-    })
 
     let results = [
       ...identResults

@@ -105,11 +105,15 @@ export default class ConfirmAddProxyContract extends Component {
               large
               className="page-container__footer-button"
               onClick={() => {
-                addIdentity(this.getImportingIdentity())
-                  .then(() => {
-                    clearPendingIdentities()
-                    history.push(DEFAULT_ROUTE)
-                  })
+                const importingIdentity = this.getImportingIdentity()
+                const promiseSteps = Promise.all([
+                  ...[(importingIdentity ? addIdentity(importingIdentity) : null)],
+                ])
+
+                promiseSteps.then(() => {
+                  clearPendingIdentities()
+                  history.push(DEFAULT_ROUTE)
+                })
               }}
             >
               { this.context.t('__metamonk_addProxyContract') }
