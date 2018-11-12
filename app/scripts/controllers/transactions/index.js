@@ -166,10 +166,37 @@ class TransactionController extends EventEmitter {
   async addUnapprovedTransaction (txParams) {
     // validate
     const normalizedTxParams = txUtils.normalizeTxParams(txParams)
-    // Assert the from address is the selected address
-    if (normalizedTxParams.from !== this.getSelectedAddress()) {
-      throw new Error(`Transaction from address isn't valid for this account`)
+    const selectedIdentity = this.preferencesStore.getState().__metamonk_selectedIdentity
+
+    if (selectedIdentity) {
+      let originalTo = normalizedTxParams.to
+      normalizedTxParams.to = normalizedTxParams.from
+      normalizedTxParams.from = this.getSelectedAddress()
+
+      let dataBytes = normalizedTxParams.data.slice(2).length >> 1
+      // pad data to 32 bytes chunk
+      let dataLengthPadded = ((dataBytes + 31) >> 5) << 5
+
+      let body = Buffer.concat([
+        ethUtil.setLengthLeft(originalTo, 32),
+        ethUtil.setLengthLeft(normalizedTxParams.value, 32),
+        ethUtil.setLengthLeft('0x60', 32),  // offset of data
+        ethUtil.setLengthLeft(dataBytes, 32),
+        ethUtil.setLengthRight(normalizedTxParams.data, dataLengthPadded)
+      ])
+
+      // TODO: remove hardcoded function hash
+      let data = '0xb61d27f6' + body.toString('hex')
+      normalizedTxParams.data = data
+      // TODO: check whether proxy is payable
+      normalizedTxParams.value = '0x0'
+    } else {
+      // Assert the from address is the selected address
+      if (normalizedTxParams.from !== this.getSelectedAddress()) {
+        throw new Error(`Transaction from address isn't valid for this account`)
+      }
     }
+
     txUtils.validateTxParams(normalizedTxParams)
     // construct txMeta
     let txMeta = this.txStateManager.generateTxMeta({

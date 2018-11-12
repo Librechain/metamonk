@@ -262,9 +262,10 @@ module.exports = class MetamaskController extends EventEmitter {
 
         // only show address if account is unlocked
         if (isUnlocked && selectedAddress) {
-          if (prefUseProxy) {
-            // TODO: show proxy address only in proxy mode
-            return ['0x1234567890123456789012345678901234567890']
+          const selectedIdentity = this.preferencesController.store.getState().__metamonk_selectedIdentity
+          // show proxy address only in proxy mode & a proxy contract is selected
+          if (prefUseProxy && selectedIdentity) {
+            return [selectedIdentity.address]
           }
           return [selectedAddress]
         } else {
@@ -396,6 +397,7 @@ module.exports = class MetamaskController extends EventEmitter {
       __metamonk_setUseProxy: nodeify(preferencesController.setMetaMonkUseProxy, preferencesController),
       __metamonk_addProxyContract: nodeify(preferencesController.addMetaMonkProxyContract, preferencesController),
       __metamonk_setIdentityLabel: nodeify(preferencesController.setMetaMonkIdentityLabel, preferencesController),
+      __metamonk_setSelectedIdentity: nodeify(preferencesController.setMetaMonkSelectedIdentity, preferencesController),
 
       // BlacklistController
       whitelistPhishingDomain: this.whitelistPhishingDomain.bind(this),

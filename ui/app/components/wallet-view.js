@@ -47,6 +47,9 @@ function mapStateToProps (state) {
     selectedAddress: selectors.getSelectedAddress(state),
     selectedAccount: selectors.getSelectedAccount(state),
     selectedTokenAddress: state.metamask.selectedTokenAddress,
+
+    __metamonk_useProxy: state.metamask.__metamonk_useProxy,
+    __metamonk_selectedIdentity: state.metamask.__metamonk_selectedIdentity,
   }
 }
 
@@ -200,14 +203,23 @@ WalletView.prototype.render = function () {
       ]),
     ]),
 
-    h(Button, {
-      type: 'primary',
-      className: 'wallet-view__add-token-button',
-      onClick: () => {
-        history.push(__METAMONK_ADD_PROXY_CONTRACT_ROUTE)
-        sidebarOpen && hideSidebar()
-      },
-    }, this.context.t('__metamonk_addProxyContract')),
+    ...(this.props.__metamonk_useProxy ? [
+      h('div', `Current identity: `),  // TODO: i18n
+      h('button.wallet-view__address', [
+        this.props.__metamonk_selectedIdentity ?
+          `${this.props.__metamonk_selectedIdentity.address} (${this.props.__metamonk_selectedIdentity.nickname})` :
+          `(main)`
+      ]),
+      h(Button, {
+        type: 'primary',
+        className: 'wallet-view__add-token-button',
+        onClick: () => {
+          history.push(__METAMONK_ADD_PROXY_CONTRACT_ROUTE)
+          sidebarOpen && hideSidebar()
+        },
+      }, this.context.t('__metamonk_addProxyContract')),
+    ] : []),
+
 
     this.renderWalletBalance(),
 

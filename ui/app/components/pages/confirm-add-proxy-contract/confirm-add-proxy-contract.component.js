@@ -14,6 +14,7 @@ export default class ConfirmAddProxyContract extends Component {
     history: PropTypes.object,
     clearPendingProxyContracts: PropTypes.func,
     addIdentity: PropTypes.func,
+    setSelectedIdentity: PropTypes.func,
     pendingIdentities: PropTypes.object,
   }
 
@@ -38,8 +39,20 @@ export default class ConfirmAddProxyContract extends Component {
       .filter(x => x.importing)[0]
   }
 
+  getSwitchingIdentity() {
+    // if there is an "non-importing" identity, priorize it
+    return Object.values(this.props.pendingIdentities)
+      .filter(x => !x.importing)[0] || this.getImportingIdentity()
+  }
+
   render () {
-    const { history, addIdentity, clearPendingIdentities, pendingIdentities } = this.props
+    const {
+      history,
+      addIdentity,
+      setSelectedIdentity,
+      clearPendingIdentities,
+      pendingIdentities
+    } = this.props
 
     return (
       <div className="page-container">
@@ -106,8 +119,11 @@ export default class ConfirmAddProxyContract extends Component {
               className="page-container__footer-button"
               onClick={() => {
                 const importingIdentity = this.getImportingIdentity()
+                const switchingIdentity = this.getSwitchingIdentity()
+
                 const promiseSteps = Promise.all([
                   ...[(importingIdentity ? addIdentity(importingIdentity) : null)],
+                  ...[(switchingIdentity ? setSelectedIdentity(switchingIdentity) : null)],
                 ])
 
                 promiseSteps.then(() => {

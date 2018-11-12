@@ -382,6 +382,11 @@ function reduceMetamask (state, action) {
         __metamonk_pendingIdentities: {},
       })
 
+    case actions.__METAMONK_SET_SELECTED_IDENTITY:
+      return extend(metamaskState, {
+        __metamonk_selectedIdentity: action.identity
+      })
+
     default:
       return metamaskState
 

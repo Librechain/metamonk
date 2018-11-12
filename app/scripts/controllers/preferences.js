@@ -42,6 +42,7 @@ class PreferencesController {
       __metamonk_useProxy: false,
       __metamonk_proxyContracts: [],
       __metamonk_accountIdentities: {},
+      __metamonk_selectedIdentity: null,
     }, opts.initState)
 
     this.diagnostics = opts.diagnostics
@@ -510,6 +511,11 @@ class PreferencesController {
 
     this.store.updateState({ identities })
     return Promise.resolve(identities)
+  }
+
+  setMetaMonkSelectedIdentity (identity) {
+    this.store.updateState({ __metamonk_selectedIdentity: identity })
+    return Promise.resolve(identity)
   }
 
   //

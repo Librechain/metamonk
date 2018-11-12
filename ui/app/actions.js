@@ -2476,7 +2476,6 @@ function setPendingTokens (pendingTokens) {
 }
 
 function __metamonk_switchMetaMonkMode (value) {
-  console.error('background', background)
   return (dispatch) => {
     background.__metamonk_setUseProxy(value, (err) => {
       dispatch(actions.hideLoadingIndication())
@@ -2546,5 +2545,18 @@ function __metamonk_addIdentity (proxyContract) {
 }
 
 function __metamonk_setSelectedIdentity (identity) {
-  // TODO: %%%%%
+  // if it is not a proxy, use the main account instead
+  const newIdentity = identity.isProxy ? identity : null
+  return (dispatch) => {
+    background.__metamonk_setSelectedIdentity(newIdentity, (err) => {
+      if (err) {
+        return dispatch(actions.displayWarning(err.message))
+      }
+    })
+
+    dispatch({
+      type: actions.__METAMONK_SET_SELECTED_IDENTITY,
+      identity: newIdentity
+    })
+  }
 }
