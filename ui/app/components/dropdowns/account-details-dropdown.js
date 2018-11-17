@@ -109,7 +109,7 @@ AccountDetailsDropdown.prototype.render = function () {
         this.props.onClose()
       },
       text: this.context.t('__metamonk_switchToProxyMode'),
-      icon: h(`img`, { src: 'images/expand.svg', style: { height: '15px' } }),
+      icon: h(`img`, { src: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==', style: { height: '15px' } }),
     }),
     isRemovable ? h(Item, {
       onClick: (e) => {

@@ -1300,7 +1300,7 @@
     "message": "Search Identities"
   },
   "__metamonk_addProxyContract": {
-    "message": "Choose identity"
+    "message": "Use another..."
   },
   "__metamonk_addProxyContracts": {
     "message": "Choose identity"
@@ -1310,6 +1310,12 @@
   },
   "__metamonk_likeToAddProxyContract": {
     "message": "Would you like to add/switch to this identity?"
+  },
+  "__metamonk_currentIdentity": {
+    "message": "Current identity: "
+  },
+  "__metamonk_currentIdentity_main": {
+    "message": "(main)"
   },
   "__metamonk_switchToProxy": {
     "message": "Switch to"

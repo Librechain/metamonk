@@ -8,6 +8,7 @@ import ProxyContractList from './proxy-contract-list'
 import ProxyContractSearch from './proxy-contract-search'
 import PageContainer from '../../page-container'
 import { Tabs, Tab } from '../../tabs'
+import SimpleDropdown from '../../dropdowns/simple-dropdown'
 
 const emptyAddr = '0x0000000000000000000000000000000000000000'
 const SEARCH_TAB = 'SEARCH'
@@ -223,11 +224,13 @@ class AddProxyContract extends Component {
       autoFilled,
     } = this.state
 
+    const { t } = this.context
+
     return (
       <div className="add-token__custom-token-form">
         <TextField
           id="custom-address"
-          label={this.context.t('__metamonk_proxyContractAddress')}
+          label={t('__metamonk_proxyContractAddress')}
           type="text"
           value={proxyAddress}
           onChange={e => this.handleProxyAddressChange(e.target.value)}
@@ -237,7 +240,7 @@ class AddProxyContract extends Component {
         />
         <TextField
           id="custom-nickname"
-          label={this.context.t('__metamonk_proxyContractNickname')}
+          label={t('__metamonk_proxyContractNickname')}
           type="text"
           value={proxyNickname}
           onChange={e => this.handleProxyNicknameChange(e.target.value)}
@@ -246,16 +249,25 @@ class AddProxyContract extends Component {
           margin="normal"
           disabled={autoFilled}
         />
-        <TextField
+        <span>{t('__metamonk_proxyContractFunctionHash')}</span>
+        <SimpleDropdown
           id="custom-function-hash"
-          label={this.context.t('__metamonk_proxyContractFunctionHash')}
-          type="text"
+          options={
+            [
+              [ '0xb61d27f6', 'Traditional: Execute()' ],
+              [ '0xc6427474', 'Gnosis-compatible' ],  // submitTransaction()
+            ].map(([hash, desc]) => ({
+              key: hash,
+              value: hash,
+              displayValue: `${desc} - ${hash}`
+            }))
+          }
+          onSelect={newFunctionHash => this.handleFunctionHashChange(newFunctionHash)}
           value={functionHash}
-          onChange={e => this.handleFunctionHashChange(e.target.value)}
-          error={functionHashError}
+          selectedOption={functionHash}
+          placeholder={t('__metamonk_proxyContractFunctionHash')}
           fullWidth
           margin="normal"
-          disabled
         />
       </div>
     )

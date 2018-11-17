@@ -116,11 +116,15 @@ WalletView.prototype.render = function () {
     hideSidebar,
     history,
     identities,
+
+    __metamonk_selectedIdentity
   } = this.props
   // temporary logs + fake extra wallets
   // console.log('walletview, selectedAccount:', selectedAccount)
 
   const checksummedAddress = checksumAddress(selectedAddress)
+  const checksummedIdentityAddress = __metamonk_selectedIdentity ?
+    checksumAddress(__metamonk_selectedIdentity.address) : null
 
   if (!selectedAddress) {
     throw new Error('selectedAddress should not be ' + String(selectedAddress))
@@ -204,22 +208,24 @@ WalletView.prototype.render = function () {
     ]),
 
     ...(this.props.__metamonk_useProxy ? [
-      h('div', `Current identity: `),  // TODO: i18n
-      h('button.wallet-view__address', [
-        this.props.__metamonk_selectedIdentity ?
-          `${this.props.__metamonk_selectedIdentity.address} (${this.props.__metamonk_selectedIdentity.nickname})` :
-          `(main)`
-      ]),
-      h(Button, {
-        type: 'primary',
-        className: 'wallet-view__add-token-button',
-        onClick: () => {
-          history.push(__METAMONK_ADD_PROXY_CONTRACT_ROUTE)
-          sidebarOpen && hideSidebar()
-        },
-      }, this.context.t('__metamonk_addProxyContract')),
+      h('div.wallet-view__metamonk-identity', [
+        h('div', this.context.t('__metamonk_currentIdentity')),
+        h('button.wallet-view__address', [
+          __metamonk_selectedIdentity ?
+            `${checksummedIdentityAddress.slice(0, 6)}...${checksummedIdentityAddress.slice(-4)}` +
+            `(${__metamonk_selectedIdentity.nickname})` :
+            this.context.t('__metamonk_currentIdentity_main')
+        ]),
+        h(Button, {
+          type: 'primary',
+          className: 'wallet-view__metamonk-add-identity-button',
+          onClick: () => {
+            history.push(__METAMONK_ADD_PROXY_CONTRACT_ROUTE)
+            sidebarOpen && hideSidebar()
+          },
+        }, this.context.t('__metamonk_addProxyContract')),
+      ])
     ] : []),
-
 
     this.renderWalletBalance(),
 
