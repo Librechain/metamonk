@@ -169,6 +169,11 @@ class TransactionController extends EventEmitter {
     const selectedIdentity = this.preferencesStore.getState().__metamonk_selectedIdentity
 
     if (selectedIdentity) {
+      // Assert the from address is the selected identity
+      if (normalizedTxParams.from !== selectedIdentity) {
+        throw new Error(`Transaction from address isn't valid for this account with this identity`)
+      }
+
       let originalTo = normalizedTxParams.to
       normalizedTxParams.to = normalizedTxParams.from
       normalizedTxParams.from = this.getSelectedAddress()
