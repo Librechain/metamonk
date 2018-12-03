@@ -8,8 +8,8 @@
 
 This repository contains a modified, working-in-progress MetaMask that supports "pluggable identities".
 
-![](https://user-images.githubusercontent.com/5269414/49366395-38492080-f724-11e8-841b-372bca57d529.png)
-![](https://user-images.githubusercontent.com/5269414/49366396-38e1b700-f724-11e8-89c3-a4f45f84e415.png)
+![](https://user-images.githubusercontent.com/5269414/49378723-46a93380-f748-11e8-8e3c-2551af1e0a1b.png)
+![](https://user-images.githubusercontent.com/5269414/49378724-46a93380-f748-11e8-94f9-31004b7d890c.png)
 
 *(left)* A link to switch on/off proxy mode \
 *(right)* When proxy mode is on, the "identity" in the gray box will be shown to Dapps instead.
@@ -22,9 +22,11 @@ As MetaMask users, we often want programmable interfaces that a plain wallet acc
 
 This fork introduces the concept of "identity", and "pluggable" means that it is an opt-in feature. When the proxy mode is enabled, a user can switch to one of its identities on-the-fly, just like it can switch to different account/network before. It can make transactions to an address, and this MetaMask-fork can transparently transform it to a suitable function call to the proxy contract on behalf of the original user. The proxy contract is expected to use that information to perform the requested transaction afterwards. Multisig contracts, for example, do not execute transactions immediately until other owners' confirmations.
 
-## Demo
+## Test builds
 
 The MetaMask-fork provides testing builds (Chrome and Firefox only) as zip packages. It is strongly encouraged to use a clean environment to minimize the interferences.
+
+&#x1F534;&#x1F534;&#x1F534; Disclaimer: Use it at your own risk! &#x1F534;&#x1F534;&#x1F534; 
 
 * 4.14.0: https://github.com/andy0130tw/metamask-extension/releases/tag/v4.14.0-metamonk
 
