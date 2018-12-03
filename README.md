@@ -2,96 +2,44 @@
 
 **This is the repository of a non-official customized MetaMask fork (namely, "Metamonk") supporting proxy contracts interacting with Dapps. [More information can be found in the wiki.](https://github.com/pelieth/metamonk/wiki)**
 
-# MetaMask Browser Extension
-[![Build Status](https://circleci.com/gh/MetaMask/metamask-extension.svg?style=shield&circle-token=a1ddcf3cd38e29267f254c9c59d556d513e3a1fd)](https://circleci.com/gh/MetaMask/metamask-extension) [![Coverage Status](https://coveralls.io/repos/github/MetaMask/metamask-extension/badge.svg?branch=master)](https://coveralls.io/github/MetaMask/metamask-extension?branch=master) [![Greenkeeper badge](https://badges.greenkeeper.io/MetaMask/metamask-extension.svg)](https://greenkeeper.io/) [![Stories in Ready](https://badge.waffle.io/MetaMask/metamask-extension.png?label=in%20progress&title=waffle.io)](https://waffle.io/MetaMask/metamask-extension)
+# [MetaMask Browser Extension (Upstream)](https://github.com/metamask/metamask-extension)
 
-## Support
+# Introduction
 
-If you're a user seeking support, [here is our support site](https://metamask.helpscoutdocs.com/).
+This repository contains a modified, working-in-progress MetaMask that supports "pluggable identities".
 
-## Introduction
+## Motivation
 
-[Mission Statement](./MISSION.md)
+As MetaMask users, we often want programmable interfaces that a plain wallet account cannot provide. Wallet contracts, for example, is the simplest way to storage and transfer ethers in practice. It works like a typical wallet when holding ethers, but its behaviors can be customized. However, when it comes to interacting with other contracts, users may find it much harder to use this kind of contracts, because an account only refers to a key pair in current MetaMask for now. It is not (readily) possible to import an address without knowing its private key.
 
-[Internal documentation](./docs#documentation)
+## Proposal
 
-## Developing Compatible Dapps
+This fork introduces the concept of "identity", and "pluggable" means that it is an opt-in feature. When the proxy mode is enabled, a user can switch to one of its identities on-the-fly, just like it can switch to different account/network before. It can make transactions to an address, and this MetaMask-fork can transparently transform it to a suitable function call to the proxy contract on behalf of the original user. The proxy contract is expected to use that information to perform the requested transaction afterwards. Multisig contracts, for example, do not execute transactions immediately until other owners' confirmations.
 
-If you're a web dapp developer, we've got two types of guides for you:
+## Demo
 
-### New Dapp Developers
+The MetaMask-fork provides testing builds (Chrome and Firefox only) as zip packages. It is strongly encouraged to use a clean environment to minimize the interferences.
 
-- We recommend this [Learning Solidity](https://karl.tech/learning-solidity-part-1-deploy-a-contract/) tutorial series by Karl Floersch.
-- We wrote a (slightly outdated now) gentle introduction on [Developing Dapps with Truffle and MetaMask](https://medium.com/metamask/developing-ethereum-dapps-with-truffle-and-metamask-aa8ad7e363ba).
+* 4.14.0: https://github.com/andy0130tw/metamask-extension/releases/tag/v4.14.0-metamonk
 
-### Current Dapp Developers
+## Implementation
 
-- If you have a Dapp, and you want to ensure compatibility, [here is our guide on building MetaMask-compatible Dapps](https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md)
+MetaMask exposes the wallet address of the selected account after unlocking (in MetaMask < 5). Dapps can access it (from `web3.currentProvider.accounts` or `web3.eth.getAccounts()`, etc.), and use this address, the identity of the user, to issue signing requests or transactions. In Metamonk, the address can be replaced with the proxy address if set, and further modifications are required to make this possible.
 
-## Building locally
+For example, there is an assert in the code that the "from" address of a transaction must match the selected address in MetaMask, to ensure that the user is able to sign that transaction later ([reference](https://github.com/MetaMask/metamask-extension/blob/v4.16.0/app/scripts/controllers/transactions/index.js#L169-L172)). If we consider a proxy contract also an identity of a user, this restriction no longer applies. As a result, we implement this feature as outlined:
 
- - Install [Node.js](https://nodejs.org/en/) version 8.11.3 and npm version 6.1.0
-   - If you are using [nvm](https://github.com/creationix/nvm#installation) (recommended) running `nvm use` will automatically choose the right node version for you.
-   - Select npm 6.1.0: ```npm install -g npm@6.1.0```
- - Install dependencies: ```npm install```
- - Install gulp globally with `npm install -g gulp-cli`.
- - Build the project to the `./dist/` folder with `gulp build`.
- - Optionally, to rebuild on file changes, run `gulp dev`.
- - To package .zip files for distribution, run `gulp zip`, or run the full build & zip with `gulp dist`.
+1. The user turns on the proxy mode option by toggling it in a dropdown menu
+2. The user adds a proxy contract `(nickname, proxy address, function hash)` and switch to this identity in the side menu
+3. MetaMask changes the exposed address to the address **of the selected identity** (contract address)
+4. If the Dapp wants to initialize a transaction, modify its destination to the address of the proxy contract, and encode parameters according to the type of that proxy contract, supplied by the user
+5. A popup is displayed as normal. The only differences are transformed `amount` and `data`
+6. The user clicks "sign", signing the transaction with the original account
+7. The transaction is sent as before
 
- Uncompressed builds can be found in `/dist`, compressed builds can be found in `/builds` once they're built.
+If (1) the user turns off the proxy mode option, or (2) it selects the non-contract address, no data is transformed, and the workflow should be identical as if this feature has not exist. This switch ensures its backward-compatibility.
 
-## Contributing
+The technical notes made while developing [can be found here](https://www.notion.so/qbane/MetaMask-Metamonk-dev-74cb6725e8344b0da581e236c3dbcab1) (on Notion).
 
-You can read [our internal docs here](https://metamask.github.io/metamask-extension/).
+## Building / Deploying
 
-You can re-generate the docs locally by running `npm run doc`, and contributors can update the hosted docs by running `npm run publish-docs`.
-
-### Running Tests
-
-Requires `mocha` installed. Run `npm install -g mocha`.
-
-Then just run `npm test`.
-
-You can also test with a continuously watching process, via `npm run watch`.
-
-You can run the linter by itself with `gulp lint`.
-
-## Architecture
-
-[![Architecture Diagram](./docs/architecture.png)][1]
-
-## Development
-
-```bash
-npm install
-npm start
-```
-
-## Build for Publishing
-
-```bash
-npm run dist
-```
-
-#### Writing Browser Tests
-
-To write tests that will be run in the browser using QUnit, add your test files to `test/integration/lib`.
-
-## Other Docs
-
-- [How to add custom build to Chrome](./docs/add-to-chrome.md)
-- [How to add custom build to Firefox](./docs/add-to-firefox.md)
-- [How to develop a live-reloading UI](./docs/ui-dev-mode.md)
-- [How to add a new translation to MetaMask](./docs/translating-guide.md)
-- [Publishing Guide](./docs/publishing.md)
-- [The MetaMask Team](./docs/team.md)
-- [How to develop an in-browser mocked UI](./docs/ui-mock-mode.md)
-- [How to live reload on local dependency changes](./docs/developing-on-deps.md)
-- [How to add new networks to the Provider Menu](./docs/adding-new-networks.md)
-- [How to manage notices that appear when the app starts up](./docs/notices.md)
-- [How to port MetaMask to a new platform](./docs/porting_to_new_environment.md)
-- [How to use the TREZOR emulator](./docs/trezor-emulator.md)
-- [How to generate a visualization of this repository's development](./docs/development-visualization.md)
-
-[1]: http://www.nomnoml.com/#view/%5B%3Cactor%3Euser%5D%0A%0A%5Bmetamask-ui%7C%0A%20%20%20%5Btools%7C%0A%20%20%20%20%20react%0A%20%20%20%20%20redux%0A%20%20%20%20%20thunk%0A%20%20%20%20%20ethUtils%0A%20%20%20%20%20jazzicon%0A%20%20%20%5D%0A%20%20%20%5Bcomponents%7C%0A%20%20%20%20%20app%0A%20%20%20%20%20account-detail%0A%20%20%20%20%20accounts%0A%20%20%20%20%20locked-screen%0A%20%20%20%20%20restore-vault%0A%20%20%20%20%20identicon%0A%20%20%20%20%20config%0A%20%20%20%20%20info%0A%20%20%20%5D%0A%20%20%20%5Breducers%7C%0A%20%20%20%20%20app%0A%20%20%20%20%20metamask%0A%20%20%20%20%20identities%0A%20%20%20%5D%0A%20%20%20%5Bactions%7C%0A%20%20%20%20%20%5BaccountManager%5D%0A%20%20%20%5D%0A%20%20%20%5Bcomponents%5D%3A-%3E%5Bactions%5D%0A%20%20%20%5Bactions%5D%3A-%3E%5Breducers%5D%0A%20%20%20%5Breducers%5D%3A-%3E%5Bcomponents%5D%0A%5D%0A%0A%5Bweb%20dapp%7C%0A%20%20%5Bui%20code%5D%0A%20%20%5Bweb3%5D%0A%20%20%5Bmetamask-inpage%5D%0A%20%20%0A%20%20%5B%3Cactor%3Eui%20developer%5D%0A%20%20%5Bui%20developer%5D-%3E%5Bui%20code%5D%0A%20%20%5Bui%20code%5D%3C-%3E%5Bweb3%5D%0A%20%20%5Bweb3%5D%3C-%3E%5Bmetamask-inpage%5D%0A%5D%0A%0A%5Bmetamask-background%7C%0A%20%20%5Bprovider-engine%5D%0A%20%20%5Bhooked%20wallet%20subprovider%5D%0A%20%20%5Bid%20store%5D%0A%20%20%0A%20%20%5Bprovider-engine%5D%3C-%3E%5Bhooked%20wallet%20subprovider%5D%0A%20%20%5Bhooked%20wallet%20subprovider%5D%3C-%3E%5Bid%20store%5D%0A%20%20%5Bconfig%20manager%7C%0A%20%20%20%20%5Brpc%20configuration%5D%0A%20%20%20%20%5Bencrypted%20keys%5D%0A%20%20%20%20%5Bwallet%20nicknames%5D%0A%20%20%5D%0A%20%20%0A%20%20%5Bprovider-engine%5D%3C-%5Bconfig%20manager%5D%0A%20%20%5Bid%20store%5D%3C-%3E%5Bconfig%20manager%5D%0A%5D%0A%0A%5Buser%5D%3C-%3E%5Bmetamask-ui%5D%0A%0A%5Buser%5D%3C%3A--%3A%3E%5Bweb%20dapp%5D%0A%0A%5Bmetamask-contentscript%7C%0A%20%20%5Bplugin%20restart%20detector%5D%0A%20%20%5Brpc%20passthrough%5D%0A%5D%0A%0A%5Brpc%20%7C%0A%20%20%5Bethereum%20blockchain%20%7C%0A%20%20%20%20%5Bcontracts%5D%0A%20%20%20%20%5Baccounts%5D%0A%20%20%5D%0A%5D%0A%0A%5Bweb%20dapp%5D%3C%3A--%3A%3E%5Bmetamask-contentscript%5D%0A%5Bmetamask-contentscript%5D%3C-%3E%5Bmetamask-background%5D%0A%5Bmetamask-background%5D%3C-%3E%5Bmetamask-ui%5D%0A%5Bmetamask-background%5D%3C-%3E%5Brpc%5D%0A
+Basically this is identical to [the original documentation of MetaMask](https://github.com/MetaMask/metamask-extension#building-locally).
