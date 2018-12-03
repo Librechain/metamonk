@@ -8,6 +8,12 @@
 
 This repository contains a modified, working-in-progress MetaMask that supports "pluggable identities".
 
+![](https://user-images.githubusercontent.com/5269414/49366395-38492080-f724-11e8-841b-372bca57d529.png)
+![](https://user-images.githubusercontent.com/5269414/49366396-38e1b700-f724-11e8-89c3-a4f45f84e415.png)
+
+*(left)* A link to switch on/off proxy mode \
+*(right)* When proxy mode is on, the "identity" in the gray box will be shown to Dapps instead.
+
 ## Motivation
 
 As MetaMask users, we often want programmable interfaces that a plain wallet account cannot provide. Wallet contracts, for example, is the simplest way to storage and transfer ethers in practice. It works like a typical wallet when holding ethers, but its behaviors can be customized. However, when it comes to interacting with other contracts, users may find it much harder to use this kind of contracts, because an account only refers to a key pair in current MetaMask for now. It is not (readily) possible to import an address without knowing its private key.
