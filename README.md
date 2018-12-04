@@ -26,7 +26,7 @@ This fork introduces the concept of "identity", and "pluggable" means that it is
 
 The MetaMask-fork provides testing builds (Chrome and Firefox only) as zip packages. It is strongly encouraged to use a clean environment to minimize the interferences.
 
-&#x1F534;&#x1F534;&#x1F534; Disclaimer: Use it at your own risk! &#x1F534;&#x1F534;&#x1F534; 
+&#x1F534;&#x1F534;&#x1F534; Disclaimer: Use at your own risk! &#x1F534;&#x1F534;&#x1F534; 
 
 * 4.14.0: https://github.com/andy0130tw/metamask-extension/releases/tag/v4.14.0-metamonk
 
