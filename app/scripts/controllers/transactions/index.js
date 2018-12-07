@@ -166,11 +166,13 @@ class TransactionController extends EventEmitter {
   async addUnapprovedTransaction (txParams) {
     // validate
     const normalizedTxParams = txUtils.normalizeTxParams(txParams)
+    const useProxy = this.preferencesStore.getState().__metamonk_useProxy
     const selectedIdentity = this.preferencesStore.getState().__metamonk_selectedIdentity
 
-    if (selectedIdentity) {
+
+    if (useProxy && selectedIdentity) {
       // Assert the from address is the selected identity
-      if (normalizedTxParams.from !== selectedIdentity) {
+      if (normalizedTxParams.from !== selectedIdentity.address.toLowerCase()) {
         throw new Error(`Transaction from address isn't valid for this account with this identity`)
       }
 
