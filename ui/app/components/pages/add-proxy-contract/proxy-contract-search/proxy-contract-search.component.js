@@ -35,9 +35,23 @@ export default class ProxyContractSearch extends Component {
     this.setState({ searchQuery })
     const identResults = Object.values(this.props.identities)
 
-    let results = [
+    const results = [
       ...identResults
-    ].concat(identResults.length ? ({ nickname: '(main)', address: this.props.selectedAddress }) : [])
+    ]
+    .concat(identResults.length ? ({ nickname: '(main)', address: this.props.selectedAddress }) : [])
+    .filter(ident => {
+      if (!searchQuery) return true
+
+      const { nickname = '', address = '' } = ident
+      return ((nickname || '').indexOf(searchQuery) >= 0 ||
+              address.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0)
+    })
+
+    results.sort((a, b) => {
+      if (a.nickname > b.nickname) return 1
+      if (a.nickname < b.nickname) return -1
+      return 0
+    })
 
     this.props.onSearch({ searchQuery, results })
   }
