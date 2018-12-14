@@ -8,8 +8,8 @@ const GWEI_FACTOR = new ethUtil.BN(1e9)
 const MIN_GAS_PRICE_BN = MIN_GAS_PRICE_GWEI_BN.mul(GWEI_FACTOR)
 
 // formatData :: ( date: <Unix Timestamp> ) -> String
-function formatDate (date) {
-  return vreme.format(new Date(date), '3/16/2014 at 14:30')
+function formatDate (date, format = '3/16/2014 at 14:30') {
+  return vreme.format(new Date(date), format)
 }
 
 var valueTable = {
@@ -128,7 +128,7 @@ function parseBalance (balance) {
 
 // Takes wei hex, returns an object with three properties.
 // Its "formatted" property is what we generally use to render values.
-function formatBalance (balance, decimalsToKeep, needsParse = true) {
+function formatBalance (balance, decimalsToKeep, needsParse = true, ticker = 'ETH') {
   var parsed = needsParse ? parseBalance(balance) : balance.split('.')
   var beforeDecimal = parsed[0]
   var afterDecimal = parsed[1]
@@ -138,14 +138,14 @@ function formatBalance (balance, decimalsToKeep, needsParse = true) {
       if (afterDecimal !== '0') {
         var sigFigs = afterDecimal.match(/^0*(.{2})/) // default: grabs 2 most significant digits
         if (sigFigs) { afterDecimal = sigFigs[0] }
-        formatted = '0.' + afterDecimal + ' ETH'
+        formatted = '0.' + afterDecimal + ` ${ticker}`
       }
     } else {
-      formatted = beforeDecimal + '.' + afterDecimal.slice(0, 3) + ' ETH'
+      formatted = beforeDecimal + '.' + afterDecimal.slice(0, 3) + ` ${ticker}`
     }
   } else {
     afterDecimal += Array(decimalsToKeep).join('0')
-    formatted = beforeDecimal + '.' + afterDecimal.slice(0, decimalsToKeep) + ' ETH'
+    formatted = beforeDecimal + '.' + afterDecimal.slice(0, decimalsToKeep) + ` ${ticker}`
   }
   return formatted
 }

@@ -7,6 +7,7 @@ const h = require('react-hyperscript')
 const actions = require('./actions')
 const classnames = require('classnames')
 const log = require('loglevel')
+const { getMetaMaskAccounts } = require('./selectors')
 
 // init
 const InitializeScreen = require('../../mascara/src/app/first-time').default
@@ -43,6 +44,10 @@ const Alert = require('./components/alert')
 
 import AppHeader from './components/app-header'
 import UnlockPage from './components/pages/unlock-page'
+
+import {
+  submittedPendingTransactionsSelector,
+} from './selectors/transactions'
 
 // Routes
 const {
@@ -108,15 +113,24 @@ class App extends Component {
       network,
       isMouseUser,
       provider,
-      frequentRpcList,
+      frequentRpcListDetail,
       currentView,
       setMouseUserState,
       sidebar,
+      submittedPendingTransactions,
     } = this.props
     const isLoadingNetwork = network === 'loading' && currentView.name !== 'config'
     const loadMessage = loadingMessage || isLoadingNetwork ?
       this.getConnectingLabel(loadingMessage) : null
     log.debug('Main ui render function')
+
+    const {
+      isOpen: sidebarIsOpen,
+      transitionName: sidebarTransitionName,
+      type: sidebarType,
+      props,
+    } = sidebar
+    const { transaction: sidebarTransaction } = props || {}
 
     return (
       h('.flex-column.full-height', {
@@ -145,16 +159,18 @@ class App extends Component {
 
         // sidebar
         h(Sidebar, {
-          sidebarOpen: sidebar.isOpen,
+          sidebarOpen: sidebarIsOpen,
+          sidebarShouldClose: sidebarTransaction && !submittedPendingTransactions.find(({ id }) => id === sidebarTransaction.id),
           hideSidebar: this.props.hideSidebar,
-          transitionName: sidebar.transitionName,
-          type: sidebar.type,
+          transitionName: sidebarTransitionName,
+          type: sidebarType,
+          sidebarProps: sidebar.props,
         }),
 
         // network dropdown
         h(NetworkDropdown, {
           provider,
-          frequentRpcList,
+          frequentRpcListDetail,
         }, []),
 
         h(AccountMenu),
@@ -237,7 +253,7 @@ App.propTypes = {
   alertMessage: PropTypes.string,
   network: PropTypes.string,
   provider: PropTypes.object,
-  frequentRpcList: PropTypes.array,
+  frequentRpcListDetail: PropTypes.array,
   currentView: PropTypes.object,
   sidebar: PropTypes.object,
   alertOpen: PropTypes.bool,
@@ -260,6 +276,7 @@ App.propTypes = {
   activeAddress: PropTypes.string,
   unapprovedTxs: PropTypes.object,
   seedWords: PropTypes.string,
+  submittedPendingTransactions: PropTypes.array,
   unapprovedMsgCount: PropTypes.number,
   unapprovedPersonalMsgCount: PropTypes.number,
   unapprovedTypedMessagesCount: PropTypes.number,
@@ -282,9 +299,10 @@ function mapStateToProps (state) {
     loadingMessage,
   } = appState
 
+  const accounts = getMetaMaskAccounts(state)
+
   const {
     identities,
-    accounts,
     address,
     keyrings,
     isInitialized,
@@ -318,6 +336,7 @@ function mapStateToProps (state) {
     isOnboarding: Boolean(!noActiveNotices || seedWords || !isInitialized),
     isPopup: state.metamask.isPopup,
     seedWords: state.metamask.seedWords,
+    submittedPendingTransactions: submittedPendingTransactionsSelector(state),
     unapprovedTxs,
     unapprovedMsgs: state.metamask.unapprovedMsgs,
     unapprovedMsgCount,
@@ -329,7 +348,7 @@ function mapStateToProps (state) {
     forgottenPassword: state.appState.forgottenPassword,
     nextUnreadNotice,
     lostAccounts,
-    frequentRpcList: state.metamask.frequentRpcList || [],
+    frequentRpcListDetail: state.metamask.frequentRpcListDetail || [],
     currentCurrency: state.metamask.currentCurrency,
     isMouseUser: state.appState.isMouseUser,
     betaUI: state.metamask.featureFlags.betaUI,

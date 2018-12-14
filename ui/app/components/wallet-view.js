@@ -7,7 +7,7 @@ const { compose } = require('recompose')
 const inherits = require('util').inherits
 const classnames = require('classnames')
 const { checksumAddress } = require('../util')
-const Identicon = require('./identicon')
+import Identicon from './identicon'
 // const AccountDropdowns = require('./dropdowns/index.js').AccountDropdowns
 const Tooltip = require('./tooltip-v2.js').default
 const copyToClipboard = require('copy-to-clipboard')
@@ -20,7 +20,7 @@ const {
   __METAMONK_ADD_PROXY_CONTRACT_ROUTE
 } = require('../routes')
 
-import Button from './button'
+import AddTokenButton from './add-token-button'
 
 module.exports = compose(
   withRouter,
@@ -41,7 +41,7 @@ function mapStateToProps (state) {
     network: state.metamask.network,
     sidebarOpen: state.appState.sidebar.isOpen,
     identities: state.metamask.identities,
-    accounts: state.metamask.accounts,
+    accounts: selectors.getMetaMaskAccounts(state),
     tokens: state.metamask.tokens,
     keyrings: state.metamask.keyrings,
     selectedAddress: selectors.getSelectedAddress(state),
@@ -106,21 +106,35 @@ WalletView.prototype.renderWalletBalance = function () {
   ])
 }
 
+WalletView.prototype.renderAddToken = function () {
+  const {
+    sidebarOpen,
+    hideSidebar,
+    history,
+  } = this.props
+
+  return h(AddTokenButton, {
+    onClick () {
+      history.push(ADD_TOKEN_ROUTE)
+      if (sidebarOpen) {
+        hideSidebar()
+      }
+    },
+  })
+}
+
 WalletView.prototype.render = function () {
   const {
     responsiveDisplayClassname,
     selectedAddress,
     keyrings,
     showAccountDetailModal,
-    sidebarOpen,
     hideSidebar,
-    history,
     identities,
 
     __metamonk_selectedIdentity
   } = this.props
   // temporary logs + fake extra wallets
-  // console.log('walletview, selectedAccount:', selectedAccount)
 
   const checksummedAddress = checksumAddress(selectedAddress)
   const checksummedIdentityAddress = __metamonk_selectedIdentity ?
@@ -231,14 +245,7 @@ WalletView.prototype.render = function () {
 
     h(TokenList),
 
-    h(Button, {
-      type: 'primary',
-      className: 'wallet-view__add-token-button',
-      onClick: () => {
-        history.push(ADD_TOKEN_ROUTE)
-        sidebarOpen && hideSidebar()
-      },
-    }, this.context.t('addToken')),
+    this.renderAddToken(),
   ])
 }
 

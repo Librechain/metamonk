@@ -3,7 +3,6 @@ const pify = require('pify')
 const getBuyEthUrl = require('../../app/scripts/lib/buy-eth-url')
 const { getTokenAddressFromTokenObject } = require('./util')
 const {
-  calcGasTotal,
   calcTokenBalance,
   estimateGas,
 } = require('./components/send/send.utils')
@@ -12,6 +11,7 @@ const { fetchLocale } = require('../i18n-helper')
 const log = require('loglevel')
 const { ENVIRONMENT_TYPE_NOTIFICATION } = require('../../app/scripts/lib/enums')
 const { hasUnconfirmedTransactions } = require('./helpers/confirm-transaction/util')
+const gasDuck = require('./ducks/gas.duck')
 const WebcamUtils = require('../lib/webcam-utils')
 
 var actions = {
@@ -305,6 +305,12 @@ var actions = {
   updateFeatureFlags,
   UPDATE_FEATURE_FLAGS: 'UPDATE_FEATURE_FLAGS',
 
+  // Preferences
+  setPreference,
+  updatePreferences,
+  UPDATE_PREFERENCES: 'UPDATE_PREFERENCES',
+  setUseNativeCurrencyAsPrimaryCurrencyPreference,
+
   setMouseUserState,
   SET_MOUSE_USER_STATE: 'SET_MOUSE_USER_STATE',
 
@@ -319,6 +325,11 @@ var actions = {
   clearPendingTokens,
 
   createCancelTransaction,
+  createSpeedUpTransaction,
+
+  approveProviderRequest,
+  rejectProviderRequest,
+  clearApprovedOrigins,
 
   __METAMONK_SWITCH_METAMONK_MODE: '__METAMONK_SWITCH_METAMONK_MODE',
   __metamonk_switchMetaMonkMode,
@@ -930,6 +941,7 @@ function setGasTotal (gasTotal) {
 }
 
 function updateGasData ({
+  gasPrice,
   blockGasLimit,
   recentBlocks,
   selectedAddress,
@@ -940,34 +952,19 @@ function updateGasData ({
 }) {
   return (dispatch) => {
     dispatch(actions.gasLoadingStarted())
-    return new Promise((resolve, reject) => {
-      background.getGasPrice((err, data) => {
-        if (err) return reject(err)
-        return resolve(data)
-      })
+    return estimateGas({
+      estimateGasMethod: background.estimateGas,
+      blockGasLimit,
+      selectedAddress,
+      selectedToken,
+      to,
+      value,
+      estimateGasPrice: gasPrice,
+      data,
     })
-    .then(estimateGasPrice => {
-      return Promise.all([
-        Promise.resolve(estimateGasPrice),
-        estimateGas({
-          estimateGasMethod: background.estimateGas,
-          blockGasLimit,
-          selectedAddress,
-          selectedToken,
-          to,
-          value,
-          estimateGasPrice,
-          data,
-        }),
-      ])
-    })
-    .then(([gasPrice, gas]) => {
-      dispatch(actions.setGasPrice(gasPrice))
+    .then(gas => {
       dispatch(actions.setGasLimit(gas))
-      return calcGasTotal(gas, gasPrice)
-    })
-    .then((gasEstimate) => {
-      dispatch(actions.setGasTotal(gasEstimate))
+      dispatch(gasDuck.setCustomGasLimit(gas))
       dispatch(updateSendErrors({ gasLoadingError: null }))
       dispatch(actions.gasLoadingFinished())
     })
@@ -1004,7 +1001,7 @@ function updateSendTokenBalance ({
       .then(usersToken => {
         if (usersToken) {
           const newTokenBalance = calcTokenBalance({ selectedToken, usersToken })
-          dispatch(setSendTokenBalance(newTokenBalance.toString(10)))
+          dispatch(setSendTokenBalance(newTokenBalance))
         }
       })
       .catch(err => {
@@ -1822,13 +1819,13 @@ function markAccountsFound () {
   return callBackgroundThenUpdate(background.markAccountsFound)
 }
 
-function retryTransaction (txId) {
+function retryTransaction (txId, gasPrice) {
   log.debug(`background.retryTransaction`)
   let newTxId
 
-  return (dispatch) => {
+  return dispatch => {
     return new Promise((resolve, reject) => {
-      background.retryTransaction(txId, (err, newState) => {
+      background.retryTransaction(txId, gasPrice, (err, newState) => {
         if (err) {
           dispatch(actions.displayWarning(err.message))
           reject(err)
@@ -1868,6 +1865,28 @@ function createCancelTransaction (txId, customGasPrice) {
   }
 }
 
+function createSpeedUpTransaction (txId, customGasPrice) {
+  log.debug('background.createSpeedUpTransaction')
+  let newTx
+
+  return dispatch => {
+    return new Promise((resolve, reject) => {
+      background.createSpeedUpTransaction(txId, customGasPrice, (err, newState) => {
+        if (err) {
+          dispatch(actions.displayWarning(err.message))
+          reject(err)
+        }
+
+        const { selectedAddressTxList } = newState
+        newTx = selectedAddressTxList[selectedAddressTxList.length - 1]
+        resolve(newState)
+      })
+    })
+    .then(newState => dispatch(actions.updateMetamaskState(newState)))
+    .then(() => newTx)
+  }
+}
+
 //
 // config
 //
@@ -1894,10 +1913,10 @@ function updateProviderType (type) {
   }
 }
 
-function setRpcTarget (newRpc) {
+function setRpcTarget (newRpc, chainId, ticker = 'ETH', nickname = '') {
   return (dispatch) => {
-    log.debug(`background.setRpcTarget: ${newRpc}`)
-    background.setCustomRpc(newRpc, (err, result) => {
+    log.debug(`background.setRpcTarget: ${newRpc} ${chainId} ${ticker} ${nickname}`)
+    background.setCustomRpc(newRpc, chainId, ticker, nickname, (err, result) => {
       if (err) {
         log.error(err)
         return dispatch(actions.displayWarning('Had a problem changing networks!'))
@@ -1968,12 +1987,13 @@ function hideModal (payload) {
   }
 }
 
-function showSidebar ({ transitionName, type }) {
+function showSidebar ({ transitionName, type, props }) {
   return {
     type: actions.SIDEBAR_OPEN,
     value: {
       transitionName,
       type,
+      props,
     },
   }
 }
@@ -2324,6 +2344,36 @@ function updateFeatureFlags (updatedFeatureFlags) {
   }
 }
 
+function setPreference (preference, value) {
+  return dispatch => {
+    dispatch(actions.showLoadingIndication())
+    return new Promise((resolve, reject) => {
+      background.setPreference(preference, value, (err, updatedPreferences) => {
+        dispatch(actions.hideLoadingIndication())
+
+        if (err) {
+          dispatch(actions.displayWarning(err.message))
+          return reject(err)
+        }
+
+        dispatch(actions.updatePreferences(updatedPreferences))
+        resolve(updatedPreferences)
+      })
+    })
+  }
+}
+
+function updatePreferences (value) {
+  return {
+    type: actions.UPDATE_PREFERENCES,
+    value,
+  }
+}
+
+function setUseNativeCurrencyAsPrimaryCurrencyPreference (value) {
+  return setPreference('useNativeCurrencyAsPrimaryCurrency', value)
+}
+
 function setNetworkNonce (networkNonce) {
   return {
     type: actions.SET_NETWORK_NONCE,
@@ -2472,6 +2522,24 @@ function setPendingTokens (pendingTokens) {
   return {
     type: actions.SET_PENDING_TOKENS,
     payload: tokens,
+  }
+}
+
+function approveProviderRequest (origin) {
+  return (dispatch) => {
+    background.approveProviderRequest(origin)
+  }
+}
+
+function rejectProviderRequest (origin) {
+  return (dispatch) => {
+    background.rejectProviderRequest(origin)
+  }
+}
+
+function clearApprovedOrigins () {
+  return (dispatch) => {
+    background.clearApprovedOrigins()
   }
 }
 

@@ -2,6 +2,10 @@ import ethUtil from 'ethereumjs-util'
 import MethodRegistry from 'eth-method-registry'
 import abi from 'human-standard-token-abi'
 import abiDecoder from 'abi-decoder'
+import {
+  TRANSACTION_TYPE_CANCEL,
+  TRANSACTION_STATUS_CONFIRMED,
+} from '../../../app/scripts/controllers/transactions/enums'
 
 import {
   TOKEN_METHOD_TRANSFER,
@@ -13,7 +17,7 @@ import {
   SEND_TOKEN_ACTION_KEY,
   TRANSFER_FROM_ACTION_KEY,
   SIGNATURE_REQUEST_KEY,
-  UNKNOWN_FUNCTION_KEY,
+  CONTRACT_INTERACTION_KEY,
   CANCEL_ATTEMPT_ACTION_KEY,
 } from '../constants/transactions'
 
@@ -27,10 +31,21 @@ export function getTokenData (data = '') {
 
 const registry = new MethodRegistry({ provider: global.ethereumProvider })
 
+/**
+ * Attempts to return the method data from the MethodRegistry library, if the method exists in the
+ * registry. Otherwise, returns an empty object.
+ * @param {string} data - The hex data (@code txParams.data) of a transaction
+ * @returns {Object}
+ */
 export async function getMethodData (data = '') {
   const prefixedData = ethUtil.addHexPrefix(data)
   const fourBytePrefix = prefixedData.slice(0, 10)
   const sig = await registry.lookup(fourBytePrefix)
+
+  if (!sig) {
+    return {}
+  }
+
   const parsedResult = registry.parse(sig)
 
   return {
@@ -76,7 +91,7 @@ export async function getTransactionActionKey (transaction, methodData) {
     const methodName = name && name.toLowerCase()
 
     if (!methodName) {
-      return UNKNOWN_FUNCTION_KEY
+      return CONTRACT_INTERACTION_KEY
     }
 
     switch (methodName) {
@@ -114,7 +129,9 @@ export function getLatestSubmittedTxWithNonce (transactions = [], nonce = '0x0')
 
 export async function isSmartContractAddress (address) {
   const code = await global.eth.getCode(address)
-  return code && code !== '0x'
+  // Geth will return '0x', and ganache-core v2.2.1 will return '0x0'
+  const codeIsEmpty = !code || code === '0x' || code === '0x0'
+  return !codeIsEmpty
 }
 
 export function sumHexes (...args) {
@@ -125,4 +142,26 @@ export function sumHexes (...args) {
   })
 
   return ethUtil.addHexPrefix(total)
+}
+
+/**
+ * Returns a status key for a transaction. Requires parsing the txMeta.txReceipt on top of
+ * txMeta.status because txMeta.status does not reflect on-chain errors.
+ * @param {Object} transaction - The txMeta object of a transaction.
+ * @param {Object} transaction.txReceipt - The transaction receipt.
+ * @returns {string}
+ */
+export function getStatusKey (transaction) {
+  const { txReceipt: { status: receiptStatus } = {}, type, status } = transaction
+
+  // There was an on-chain failure
+  if (receiptStatus === '0x0') {
+    return 'failed'
+  }
+
+  if (status === TRANSACTION_STATUS_CONFIRMED && type === TRANSACTION_TYPE_CANCEL) {
+    return 'cancelled'
+  }
+
+  return transaction.status
 }

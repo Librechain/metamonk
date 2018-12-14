@@ -2,7 +2,7 @@ const Component = require('react').Component
 const PropTypes = require('prop-types')
 const h = require('react-hyperscript')
 const inherits = require('util').inherits
-const Identicon = require('./identicon')
+import Identicon from './identicon'
 const connect = require('react-redux').connect
 const ethUtil = require('ethereumjs-util')
 const classnames = require('classnames')
@@ -164,7 +164,7 @@ SignatureRequest.prototype.msgHexToText = function (hex) {
   try {
     const stripped = ethUtil.stripHexPrefix(hex)
     const buff = Buffer.from(stripped, 'hex')
-    return buff.toString('utf8')
+    return buff.length === 32 ? hex : buff.toString('utf8')
   } catch (e) {
     return hex
   }

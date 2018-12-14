@@ -48,13 +48,28 @@ class ExtensionPlatform {
   }
 
   showTransactionNotification (txMeta) {
+    const { status, txReceipt: { status: receiptStatus } = {} } = txMeta
 
-    const status = txMeta.status
     if (status === 'confirmed') {
-      this._showConfirmedTransaction(txMeta)
+      // There was an on-chain failure
+      receiptStatus === '0x0'
+        ? this._showFailedTransaction(txMeta, 'Transaction encountered an error.')
+        : this._showConfirmedTransaction(txMeta)
     } else if (status === 'failed') {
       this._showFailedTransaction(txMeta)
     }
+  }
+
+  addMessageListener (cb) {
+    extension.runtime.onMessage.addListener(cb)
+  }
+
+  sendMessage (message, query = {}) {
+    extension.tabs.query(query, tabs => {
+      tabs.forEach(tab => {
+        extension.tabs.sendMessage(tab.id, message)
+      })
+    })
   }
 
   _showConfirmedTransaction (txMeta) {
@@ -69,11 +84,11 @@ class ExtensionPlatform {
     this._showNotification(title, message, url)
   }
 
-  _showFailedTransaction (txMeta) {
+  _showFailedTransaction (txMeta, errorMessage) {
 
     const nonce = parseInt(txMeta.txParams.nonce, 16)
     const title = 'Failed transaction'
-    const message = `Transaction ${nonce} failed! ${txMeta.err.message}`
+    const message = `Transaction ${nonce} failed! ${errorMessage || txMeta.err.message}`
     this._showNotification(title, message)
   }
 
