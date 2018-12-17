@@ -21,6 +21,7 @@ const {
 } = require('../routes')
 
 import AddTokenButton from './add-token-button'
+import Button from './button'
 
 module.exports = compose(
   withRouter,
@@ -234,6 +235,11 @@ WalletView.prototype.render = function () {
           type: 'primary',
           className: 'wallet-view__metamonk-add-identity-button',
           onClick: () => {
+            const {
+              history,
+              hideSidebar,
+              sidebarOpen,
+            } = this.props
             history.push(__METAMONK_ADD_PROXY_CONTRACT_ROUTE)
             sidebarOpen && hideSidebar()
           },

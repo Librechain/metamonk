@@ -20,8 +20,8 @@ Mascot.prototype.render = function () {
       zIndex: 0,
       backgroundImage: 'url(images/metamonk.svg)',
       backgroundSize: 'contain',
-      width: this.width,
-      height: this.height,
+      width: this.width + 'px',
+      height: this.height + 'px',
     },
   })
 }
