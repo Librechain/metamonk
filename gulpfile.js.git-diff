@@ -1,0 +1,105 @@
+diff --git a/gulpfile.js b/gulpfile.js
+index 31888faac..ead5895fe 100644
+--- a/gulpfile.js
++++ b/gulpfile.js
+@@ -45,14 +45,14 @@ function gulpParallel (...args) {
+ }
+ 
+ const browserPlatforms = [
+-  'firefox',
++  // 'firefox',
+   'chrome',
+-  'edge',
+-  'opera',
++  // 'edge',
++  // 'opera',
+ ]
+ const commonPlatforms = [
+   // browser webapp
+-  'mascara',
++  // 'mascara',
+   // browser extensions
+   ...browserPlatforms,
+ ]
+@@ -112,11 +112,11 @@ createCopyTasks('manifest', {
+ 
+ // copy mascara
+ 
+-createCopyTasks('html:mascara', {
+-  source: './mascara/',
+-  pattern: 'proxy/index.html',
+-  destinations: [`./dist/mascara/`],
+-})
++// createCopyTasks('html:mascara', {
++//   source: './mascara/',
++//   pattern: 'proxy/index.html',
++//   destinations: [`./dist/mascara/`],
++// })
+ 
+ function createCopyTasks (label, opts) {
+   if (!opts.devOnly) {
+@@ -188,10 +188,10 @@ gulp.task('manifest:opera', function () {
+ 
+ gulp.task('manifest:production', function () {
+   return gulp.src([
+-    './dist/firefox/manifest.json',
++    // './dist/firefox/manifest.json',
+     './dist/chrome/manifest.json',
+-    './dist/edge/manifest.json',
+-    './dist/opera/manifest.json',
++    // './dist/edge/manifest.json',
++    // './dist/opera/manifest.json',
+   ], {base: './dist/'})
+ 
+   // Exclude chromereload script in production:
+@@ -210,7 +210,7 @@ gulp.task('copy',
+     gulp.parallel(...copyTaskNames),
+     'manifest:production',
+     'manifest:chrome',
+-    'manifest:opera'
++    // 'manifest:opera'
+   )
+ )
+ 
+@@ -218,7 +218,7 @@ gulp.task('dev:copy',
+   gulp.series(
+     gulp.parallel(...copyDevTaskNames),
+     'manifest:chrome',
+-    'manifest:opera'
++    // 'manifest:opera'
+   )
+ )
+ 
+@@ -391,10 +391,10 @@ gulp.task('clean', function clean () {
+ 
+ // zip tasks for distribution
+ gulp.task('zip:chrome', zipTask('chrome'))
+-gulp.task('zip:firefox', zipTask('firefox'))
+-gulp.task('zip:edge', zipTask('edge'))
+-gulp.task('zip:opera', zipTask('opera'))
+-gulp.task('zip', gulp.parallel('zip:chrome', 'zip:firefox', 'zip:edge', 'zip:opera'))
++// gulp.task('zip:firefox', zipTask('firefox'))
++// gulp.task('zip:edge', zipTask('edge'))
++// gulp.task('zip:opera', zipTask('opera'))
++gulp.task('zip', gulp.parallel('zip:chrome'/*, 'zip:firefox', 'zip:edge', 'zip:opera'*/))
+ 
+ // high level tasks
+ 
+@@ -404,7 +404,7 @@ gulp.task('dev',
+     'dev:scss',
+     gulp.parallel(
+       'dev:extension:js',
+-      'dev:mascara:js',
++      // 'dev:mascara:js',
+       'dev:copy',
+       'dev:reload'
+     )
+@@ -464,7 +464,7 @@ gulp.task('build:mascara',
+     'clean',
+     'build:scss',
+     gulp.parallel(
+-      'build:mascara:js',
++      // 'build:mascara:js',
+       'copy'
+     )
+   )
