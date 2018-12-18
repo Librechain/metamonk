@@ -1491,8 +1491,11 @@
   "__metamonk_searchIdentity": {
     "message": "Search Identities"
   },
-  "__metamonk_addProxyContract": {
+  "__metamonk_useAnotherIdentity": {
     "message": "Use another..."
+  },
+  "__metamonk_addProxyContract": {
+    "message": "Add identity"
   },
   "__metamonk_addProxyContracts": {
     "message": "Choose identity"
@@ -1525,7 +1528,7 @@
     "message": "Ether balance"
   },
   "__metamonk_proxyContractFunctionHash": {
-    "message": "Function hash"
+    "message": "Interface type (function hash)"
   },
 
   "__metamonk_invalidFunctionHash": {

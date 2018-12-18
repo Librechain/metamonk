@@ -228,6 +228,31 @@ class AddProxyContract extends Component {
 
     return (
       <div className="add-token__custom-token-form">
+        <label style={{
+          fontSize: '.75rem',
+          color: '#5b5b5b'
+        }}>
+        {t('__metamonk_proxyContractFunctionHash')}
+        </label>
+        <SimpleDropdown
+          id="custom-function-hash"
+          options={
+            [
+              [ '0xb61d27f6', 'Traditional: Execute()' ],
+              [ '0xc6427474', 'Gnosis-compatible' ],  // submitTransaction()
+            ].map(([hash, desc]) => ({
+              key: hash,
+              value: hash,
+              displayValue: `${desc} - ${hash}`
+            }))
+          }
+          onSelect={newFunctionHash => this.handleFunctionHashChange(newFunctionHash)}
+          value={functionHash}
+          selectedOption={functionHash}
+          placeholder={t('__metamonk_proxyContractFunctionHash')}
+          fullWidth
+          margin="normal"
+        />
         <TextField
           id="custom-address"
           label={t('__metamonk_proxyContractAddress')}
@@ -248,26 +273,6 @@ class AddProxyContract extends Component {
           fullWidth
           margin="normal"
           disabled={autoFilled}
-        />
-        <span>{t('__metamonk_proxyContractFunctionHash')}</span>
-        <SimpleDropdown
-          id="custom-function-hash"
-          options={
-            [
-              [ '0xb61d27f6', 'Traditional: Execute()' ],
-              [ '0xc6427474', 'Gnosis-compatible' ],  // submitTransaction()
-            ].map(([hash, desc]) => ({
-              key: hash,
-              value: hash,
-              displayValue: `${desc} - ${hash}`
-            }))
-          }
-          onSelect={newFunctionHash => this.handleFunctionHashChange(newFunctionHash)}
-          value={functionHash}
-          selectedOption={functionHash}
-          placeholder={t('__metamonk_proxyContractFunctionHash')}
-          fullWidth
-          margin="normal"
         />
       </div>
     )

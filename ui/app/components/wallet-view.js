@@ -243,7 +243,7 @@ WalletView.prototype.render = function () {
             history.push(__METAMONK_ADD_PROXY_CONTRACT_ROUTE)
             sidebarOpen && hideSidebar()
           },
-        }, this.context.t('__metamonk_addProxyContract')),
+        }, this.context.t('__metamonk_useAnotherIdentity')),
       ])
     ] : []),
 
