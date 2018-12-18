@@ -1,5 +1,7 @@
 # About 
 
+![](../../metamonk/develop/app/images/info-logo.png)
+
 **This is the repository of a non-official customized MetaMask fork (namely, "Metamonk") supporting proxy contracts interacting with Dapps. [More information can be found in the wiki.](https://github.com/pelieth/metamonk/wiki)**
 
 # [MetaMask Browser Extension (Upstream)](https://github.com/metamask/metamask-extension)
@@ -28,6 +30,7 @@ The MetaMask-fork provides testing builds (Chrome and Firefox only) as zip packa
 
 &#x1F534;&#x1F534;&#x1F534; Disclaimer: Use at your own risk! &#x1F534;&#x1F534;&#x1F534; 
 
+* 5.2.2: https://github.com/andy0130tw/metamask-extension/releases/tag/v5.2.2-metamonk
 * 4.14.0: https://github.com/andy0130tw/metamask-extension/releases/tag/v4.14.0-metamonk
 
 ## Implementation
