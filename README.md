@@ -1,4 +1,4 @@
-# About 
+# MetaMonk - A MetaMask-fork to support pluggable identity contracts.
 
 ![](../../metamonk/develop/app/images/info-logo.png)
 
@@ -18,7 +18,13 @@ This repository contains a modified, working-in-progress MetaMask that supports 
 
 ## Motivation
 
-As MetaMask users, we often want programmable interfaces that a plain wallet account cannot provide. Wallet contracts, for example, is the simplest way to storage and transfer ethers in practice. It works like a typical wallet when holding ethers, but its behaviors can be customized. However, when it comes to interacting with other contracts, users may find it much harder to use this kind of contracts, because an account only refers to a key pair in current MetaMask for now. It is not (readily) possible to import an address without knowing its private key.
+As MetaMask users, we often want programmable interfaces that a plain wallet account cannot provide. Wallet contracts, for example, is the simplest way to storage and transfer ethers in practice. It works like a typical wallet when holding ethers, but its behaviors can be customized. 
+
+However, when it comes to interacting with other contracts or DApp, users may find it much difficult to actaully interact with them. Take Multisignature wallet Gnosis as example. Although it is equipped with built-in ERC20 interface, but in the case of ERC721 or ENS, you will have to manually enter contract ABI and composed function payload in order to interact with external smart contract.
+
+![gnosis](https://user-images.githubusercontent.com/1984426/61522162-632e7d80-aa44-11e9-9e07-8626d7eb17e7.png)
+
+*(description)* Gnosis wallet external smart contract interaction interface.
 
 ## Proposal
 
