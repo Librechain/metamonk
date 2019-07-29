@@ -2,10 +2,6 @@
 
 ![](../../metamonk/develop/app/images/info-logo.png)
 
-**This is the repository of a non-official customized MetaMask fork (namely, "Metamonk") supporting proxy contracts interacting with Dapps. [More information can be found in the wiki.](https://github.com/pelieth/metamonk/wiki)**
-
-# [MetaMask Browser Extension (Upstream)](https://github.com/metamask/metamask-extension)
-
 # Introduction
 
 This repository contains a modified, working-in-progress MetaMask that supports "pluggable identities".
